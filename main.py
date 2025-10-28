@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import List
 from pydantic import BaseModel
+from fastapi.responses import FileResponse
 
 # Creamos nuestra aplicación con FastAPI
 app = FastAPI()
@@ -58,7 +59,7 @@ def create_soap_response(body_content: str) -> str:
     Crea la estructura XML estándar de una respuesta SOAP, 
     envolviendo el contenido (body_content) dentro de un sobre SOAP.
     """
-    return f'''<?xml version="1-0" encoding="UTF-8"?>
+    return f'''<?xml version="1.0" encoding="UTF-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     <soap:Body>
         {body_content}
@@ -248,3 +249,10 @@ def root():
     Indica que el servidor SOAP está en funcionamiento y cómo usarlo.
     """
     return {"message": "SOAP API Server - Utiliza la ruta POST /soap"}
+
+@app.get("/wsdl", response_class=FileResponse)
+def get_wsdl():
+    """
+    Devuelve el archivo WSDL para que los clientes SOAP puedan conocer la estructura del servicio.
+    """
+    return FileResponse("users_service.wsdl", media_type="application/wsdl+xml")
